@@ -3,10 +3,14 @@
   (:use compojure.core)
   (:use cheshire.core)
   (:use ring.util.response)
+  (:use games-api.protocols.game-protocol)
+  (:use games-api.implementations.tictactoe)
+  (:use games-api.implementations.chess)
   (:require [compojure.handler :as handler]
             [ring.middleware.json :as middleware]
             [clojure.java.jdbc :as sql]
             [compojure.route :as route]))
+            ;[games-api.implementations.tictactoe :as IMPLS]))
 
   (def db-config
     {:classname "org.h2.Driver"
@@ -72,14 +76,24 @@
     {:status 204})
 
 
+  (def chess-creation "(->Chess)")
+  (def games-instances
+    {"tictactoe" (->TicTacToe)
+     "chess"     (eval (read-string chess-creation))
+     })
+
   (defroutes app-routes
              (context "/documents" [] (defroutes documents-routes
+                                                 ;(GET "/state" [] (initial-state (IMPLS/->TicTacToe)))
                                                  (GET  "/" [] (get-all-documents))
                                                  (POST "/" {body :body} (create-new-document body))
                                                  (context "/:id" [id] (defroutes document-routes
                                                                                  (GET    "/" [] (get-document id))
                                                                                  (PUT    "/" {body :body} (update-document id body))
                                                                                  (DELETE "/" [] (delete-document id))))))
+
+             (GET "/:game-id" [game-id] (game-details (get games-instances game-id)))
+             (GET "/:game-id/initial-state" [game-id] (initial-state (get games-instances game-id)))
              (route/not-found "Not Found"))
 
   (def app

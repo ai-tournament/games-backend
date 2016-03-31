@@ -5,9 +5,17 @@
 
 (deftest test-app
   (testing "main route"
-    (let [response (app (mock/request :get "/"))]
+    (let [response (app (mock/request :get "/list-games"))]
       (is (= (:status response) 200))
-      (is (= (:body response) "Hello World"))))
+      (is (= (:body response) "[
+                  {
+                    id: \"tictactoe\",
+                    name: \"Tic Tac Toe\"
+                  }]"))))
+
+  (testing "specific game route")
+  (let [response (app (mock/request :get "/tictactoe"))]
+    (is (= (:status response) 200)))
 
   (testing "not-found route"
     (let [response (app (mock/request :get "/invalid"))]
