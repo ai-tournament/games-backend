@@ -4,11 +4,11 @@
 
 (defrecord TicTacToe []
   Game
-  (game-details [this] (str "{ name: \"Tic Tac Toe game!\""
+  (game-details [_] (str "{ name: \"Tic Tac Toe game!\""
                             "  desc: \"It' really cool :)\""
                             "}"))
-  (initial-state [this] (str "["
+  (initial-state [_] (str "["
                              (join ", " (vec (take 9 (repeat "\"E\""))))
                              "]"))
-  (apply-move [this game-state move] nil)
-  (finished? [this game-state] nil))
+  (apply-move [_ game-state move] nil)
+  (finished? [_ game-state] nil))

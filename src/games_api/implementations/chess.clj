@@ -1,10 +1,11 @@
 (ns games-api.implementations.chess
-  (:import (games_api.protocols.game_protocol Game)))
+  (:use games-api.protocols.game-protocol)
+  (:use clojure.string))
 
 (defrecord Chess []
   Game
-  (game-details [this] (str "test chess"))
-  (initial-state [this])
+  (game-details [_] (str "test chess"))
+  (initial-state [_] (str "Move your pawn!"))
   (apply-move [this game-state move])
   (finished? [this game-state]))
 
