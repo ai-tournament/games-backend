@@ -100,3 +100,8 @@
     (-> (handler/api app-routes)
         (middleware/wrap-json-body)
         middleware/wrap-json-response))
+
+  (defn list-game-details
+    [game-id]
+    (let [{:list-details list-specific-game-details} (get games-functions game-id)]
+                                                    (str "Game details: " list-specific-game-details)))
