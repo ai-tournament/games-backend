@@ -26,9 +26,9 @@
                           (GET "/" []
                             (json/write-str (games-list )))
                           (GET "/:game-id" [game-id]
-                            (game-details (get games-instances game-id)))
+                            (json/write-str (game-details (get games-instances game-id))))
                           (GET "/:game-id/initial-state" [game-id]
-                            (initial-state (get games-instances game-id)))
+                            (json/write-str (initial-state (get games-instances game-id))))
                           (route/not-found "Not Found"))))
 
   (def app
