@@ -23,10 +23,10 @@
                                                            })]
           (is (=  (get response "status") "ok"))
           (is (=  (get response "new-state")
-                  (assoc (vec (take 9 (repeat "E"))) 4 "X"))))))
+                  (assoc (vec (take 9 (repeat "E"))) 4 "X")))))
 
-(testing "TicTacToe must accept player 2 move when in the initial state"
-  (let [ttt-instance (TicTacToe.)
+  (testing "TicTacToe must accept player 2 move when in the initial state"
+    (let [ttt-instance (TicTacToe.)
         current-state (initial-state ttt-instance)
         response (apply-move ttt-instance current-state {
                                                          "move-id" "place-marker"
@@ -56,3 +56,24 @@
                                                             "marker-position" 3
                                                             })]
             (is (= (get response "status") "error")))))
+
+  (testing "TicTacToe should consider the game finished when there are no empty places in the board"
+    (let [ttt-instance (TicTacToe.)]
+      (is (finished? ttt-instance (vec (take 9 (repeat "X")))))))
+
+  (testing "TicTacToe should consider the game finished when there is a row filled with the same marker"
+    (let [ttt-instance (TicTacToe.)]
+      (is (finished? ttt-instance ["X" "X" "X" "E" "E" "E" "E" "E" "E"]))
+      (is (finished? ttt-instance ["E" "E" "E" "O" "O" "O" "E" "E" "E"]))
+      (is (finished? ttt-instance ["E" "E" "E" "E" "E" "E" "X" "X" "X"]))))
+
+  (testing "TicTacToe should consider the game finished when there is a column filled with the same marker"
+    (let [ttt-instance (TicTacToe.)]
+      (is (finished? ttt-instance ["X" "E" "E" "X" "E" "E" "X" "E" "E"]))
+      (is (finished? ttt-instance ["E" "O" "E" "E" "O" "E" "E" "O" "E"]))
+      (is (finished? ttt-instance ["E" "E" "X" "E" "E" "X" "E" "E" "X"]))))
+
+  (testing "TicTacToe should consider the game finished when there is a diagonal filled with the same marker"
+    (let [ttt-instance (TicTacToe.)]
+      (is (finished? ttt-instance ["X" "E" "E" "E" "X" "E" "E" "E" "X"]))
+      (is (finished? ttt-instance ["E" "E" "O" "E" "O" "E" "O" "E" "E"])))))
