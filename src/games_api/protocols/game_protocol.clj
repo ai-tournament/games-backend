@@ -4,4 +4,4 @@
   (game-details [this])
   (initial-state [this])
   (apply-move [this game-state move])
-  (finished? [this game-state]))
+  (finished [this game-state]))

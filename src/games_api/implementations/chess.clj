@@ -7,5 +7,5 @@
   (game-details [_] "test chess")
   (initial-state [_] "Move your pawn!")
   (apply-move [this game-state move])
-  (finished? [this game-state]))
+  (finished [this game-state]))
 

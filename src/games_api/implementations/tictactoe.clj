@@ -1,6 +1,15 @@
 (ns games-api.implementations.tictactoe
   (:use games-api.protocols.game-protocol))
 
+(defn- winner [game-state]
+  (def select-values (partial (comp vals select-keys) game-state))
+  (let [runs [[0 1 2] [3 4 5] [ 6 7 8] [0 3 6] [1 4 7] [2 5 8] [0 4 8] [2 4 6]]]
+    (defn all-same-marker [indices] (and
+                                      (apply = (select-values indices))
+                                      (not (every? #(= "E" %) (select-values indices)))))
+    (let [matching-run (first (filter #(all-same-marker %) runs))]
+      (get game-state (first matching-run)))))
+
 (defrecord TicTacToe []
   Game
   (game-details [_] { "name" "Tic Tac Toe game!"
@@ -21,14 +30,10 @@
           "new-state" (assoc game-state pos (get markers player-id))
         })))
 
-  (finished? [_ game-state]
-    (defn empty-marker? [x] (= "E" x))
-    (def select-values (partial (comp vals select-keys) game-state))
-    (or (not-any? empty-marker? game-state)
-        (let [strikes [[0 1 2] [3 4 5] [ 6 7 8] [0 3 6] [1 4 7] [2 5 8] [0 4 8] [2 4 6]]]
-          (defn all-X-marker [subcol] (every? (partial = "X") subcol))
-          (defn all-O-marker [subcol] (every? (partial = "O") subcol))
-          (defn all-same-marker [indices] (or
-                                                (all-X-marker (select-values indices))
-                                                (all-O-marker (select-values indices))))
-          (some (partial = true) (map all-same-marker strikes))))))
+  (finished [_ game-state]
+    (let [winner-result (winner game-state)]
+      {"finished"  (not (= winner-result nil))
+       "winner-id" (if winner-result
+                     (if (= winner-result "X") 1 2)
+                     nil)
+       })))

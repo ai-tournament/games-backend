@@ -59,21 +59,37 @@
 
   (testing "TicTacToe should consider the game finished when there are no empty places in the board"
     (let [ttt-instance (TicTacToe.)]
-      (is (finished? ttt-instance (vec (take 9 (repeat "X")))))))
+      (is (finished ttt-instance (vec (take 9 (repeat "X")))))))
 
   (testing "TicTacToe should consider the game finished when there is a row filled with the same marker"
     (let [ttt-instance (TicTacToe.)]
-      (is (finished? ttt-instance ["X" "X" "X" "E" "E" "E" "E" "E" "E"]))
-      (is (finished? ttt-instance ["E" "E" "E" "O" "O" "O" "E" "E" "E"]))
-      (is (finished? ttt-instance ["E" "E" "E" "E" "E" "E" "X" "X" "X"]))))
+      (let [result (finished ttt-instance ["X" "X" "X" "E" "E" "E" "E" "E" "E"])]
+        (is (get result "finished"))
+        (is (= (get result "winner-id") 1)))
+      (let [result (finished ttt-instance ["E" "E" "E" "O" "O" "O" "E" "E" "E"])]
+        (is (get result "finished"))
+        (is (= (get result "winner-id") 2)))
+      (let [result (finished ttt-instance ["E" "E" "E" "E" "E" "E" "X" "X" "X"])]
+        (is (get result "finished"))
+        (is (= (get result "winner-id") 1)))))
 
   (testing "TicTacToe should consider the game finished when there is a column filled with the same marker"
     (let [ttt-instance (TicTacToe.)]
-      (is (finished? ttt-instance ["X" "E" "E" "X" "E" "E" "X" "E" "E"]))
-      (is (finished? ttt-instance ["E" "O" "E" "E" "O" "E" "E" "O" "E"]))
-      (is (finished? ttt-instance ["E" "E" "X" "E" "E" "X" "E" "E" "X"]))))
+      (let [result (finished ttt-instance ["X" "E" "E" "X" "E" "E" "X" "E" "E"])]
+        (is (get result "finished"))
+        (is (= (get result "winner-id") 1)))
+      (let [result (finished ttt-instance ["E" "O" "E" "E" "O" "E" "E" "O" "E"])]
+        (is (get result "finished"))
+        (is (= (get result "winner-id") 2)))
+      (let [result (finished ttt-instance ["E" "E" "X" "E" "E" "X" "E" "E" "X"])]
+        (is (get result "finished"))
+        (is (= (get result "winner-id") 1)))))
 
   (testing "TicTacToe should consider the game finished when there is a diagonal filled with the same marker"
     (let [ttt-instance (TicTacToe.)]
-      (is (finished? ttt-instance ["X" "E" "E" "E" "X" "E" "E" "E" "X"]))
-      (is (finished? ttt-instance ["E" "E" "O" "E" "O" "E" "O" "E" "E"])))))
+      (let [result (finished ttt-instance ["X" "E" "E" "E" "X" "E" "E" "E" "X"])]
+        (is (get result "finished"))
+        (is (= (get result "winner-id") 1)))
+      (let [result (finished ttt-instance ["E" "E" "O" "E" "O" "E" "O" "E" "E"])]
+        (is (get result "finished"))
+        (is (= (get result "winner-id") 2))))))
