@@ -29,7 +29,8 @@
           player-id (- (get move "player-id") 1)]
       (if (or (not (empty-position? game-state pos))
               (get (finished _ game-state) "finished"))
-        {"status" "error"}
+        {"status" "error"
+         "new-state" game-state}
         { "status"  "ok"
           "new-state" (assoc game-state pos (get markers player-id))
         })))

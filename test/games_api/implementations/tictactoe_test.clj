@@ -45,7 +45,8 @@
                                                             "player-id" 1
                                                             "marker-position" 4
                                                             })]
-            (is (= (get response "status") "error")))))
+            (is (= (get response "status") "error"))
+            (is (= (get response "new-state") current-state)))))
 
   (testing "TicTacToe must not accept placing a marker over an existing one from player 2"
     (let [ttt-instance (TicTacToe.)
@@ -55,7 +56,8 @@
                                                             "player-id" 2
                                                             "marker-position" 3
                                                             })]
-            (is (= (get response "status") "error")))))
+            (is (= (get response "status") "error"))
+            (is (= (get response "new-state") current-state)))))
 
   (testing "TicTacToe should consider the game finished when there are no empty places in the board"
     (let [ttt-instance (TicTacToe.)]
@@ -102,5 +104,6 @@
                                                        "player-id" 1
                                                        "marker-position" 1
                                                        })]
-        (is (= (get response "status") "error"))))))
+        (is (= (get response "status") "error"))
+        (is (= (get response "new-state") current-state))))))
 
