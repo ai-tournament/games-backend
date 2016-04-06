@@ -10,6 +10,9 @@
     (let [matching-run (first (filter #(all-same-marker %) runs))]
       (get game-state (first matching-run)))))
 
+(defn- empty-position? [game-state pos]
+  (= (get game-state pos) "E"))
+
 (defrecord TicTacToe []
   Game
   (game-details [_] { "name" "Tic Tac Toe game!"
@@ -24,7 +27,8 @@
     (def markers ["X" "O"])
     (let [pos (- (get move "marker-position") 1)
           player-id (- (get move "player-id") 1)]
-      (if (not (= (get game-state pos) "E"))
+      (if (or (not (empty-position? game-state pos))
+              (get (finished _ game-state) "finished"))
         {"status" "error"}
         { "status"  "ok"
           "new-state" (assoc game-state pos (get markers player-id))

@@ -92,4 +92,15 @@
         (is (= (get result "winner-id") 1)))
       (let [result (finished ttt-instance ["E" "E" "O" "E" "O" "E" "O" "E" "E"])]
         (is (get result "finished"))
-        (is (= (get result "winner-id") 2))))))
+        (is (= (get result "winner-id") 2)))))
+
+  (testing "TicTacToe should not accept new moves if the game is finished"
+    (let [ttt-instance (TicTacToe.)
+          current-state ["E" "E" "X" "E" "E" "X" "E" "E" "X"]]
+      (let [response (apply-move ttt-instance current-state {
+                                                       "move-id" "place-marker"
+                                                       "player-id" 1
+                                                       "marker-position" 1
+                                                       })]
+        (is (= (get response "status") "error"))))))
+
