@@ -1,14 +1,11 @@
 (ns games-api.implementations.tictactoe
   (:use games-api.protocols.game-protocol))
 
-(defn- winner [game-state]
+(defn- winner [marker game-state]
   (def select-values (partial (comp vals select-keys) game-state))
   (let [runs [[0 1 2] [3 4 5] [ 6 7 8] [0 3 6] [1 4 7] [2 5 8] [0 4 8] [2 4 6]]]
-    (defn all-same-marker [indices] (and
-                                      (apply = (select-values indices))
-                                      (not (every? #(= "E" %) (select-values indices)))))
-    (let [matching-run (first (filter #(all-same-marker %) runs))]
-      (get game-state (first matching-run)))))
+    (defn all-same-marker [indices] (every? #(= marker %) (select-values indices)))
+    (some all-same-marker runs)))
 
 (defn- empty-position? [game-state pos]
   (= (get game-state pos) "E"))
@@ -36,9 +33,11 @@
         })))
 
   (finished [_ game-state]
-    (let [winner-result (winner game-state)]
-      {"finished"  (not (= winner-result nil))
-       "winner-id" (if winner-result
-                     (if (= winner-result "X") 1 2)
-                     nil)
-       })))
+    (let [winner-id (cond
+                      (winner "X" game-state) 1
+                      (winner "O" game-state) 2
+                      :else nil)]
+      {"finished"  (not (= winner-id nil))
+       "winner-id" winner-id
+       }
+      )))
