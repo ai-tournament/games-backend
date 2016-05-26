@@ -13,11 +13,10 @@
             [compojure.route :as route]
             [clojure.data.json :as json]))
 
-  (def chess-creation "(Chess.)")
   (def games-instances
     {
-     "tictactoe" (TicTacToe.)
-     "chess"     (eval (read-string chess-creation))
+     "tic-tac-toe" (TicTacToe.)
+     "chess"     (Chess.)
      })
 
   (def games-states (atom
@@ -33,7 +32,7 @@
              (context "/games" []
                (defroutes games-routes
                           (GET "/" []
-                            (json/write-str (games-list )))
+                            (json/write-str (games-list)))
                           (context "/:game-id" [game-id]
                             (GET "/" []
                               (json/write-str (game-details (get games-instances game-id))))

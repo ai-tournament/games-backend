@@ -3,4 +3,5 @@
 (defn games-list
   "Retrieves list of currently available games as a vector of maps [{:game-id :game-name}]"
   []
-  [{:game-id "chess" :game-name "Chess"}])
+  [{:game-id "tic-tac-toe" :game-name "Tic-Tac-Toe"}
+   {:game-id "chess" :game-name "Chess"}])
