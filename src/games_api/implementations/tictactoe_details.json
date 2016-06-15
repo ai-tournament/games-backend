@@ -1,0 +1,8 @@
+{
+  "name": "Tic Tac Toe",
+  "desc": "You know it :)",
+  "moves": [
+    "place_marker":
+      "The following json format should be used to perform a game move: (...)"
+  ]
+}

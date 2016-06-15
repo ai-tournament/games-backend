@@ -13,42 +13,34 @@
             [compojure.route :as route]
             [clojure.data.json :as json]))
 
-  (def games-instances
-    {
-     "tic-tac-toe" (TicTacToe.)
-     "chess"     (Chess.)
-     })
+(def games-instances
+  {
+   "tictactoe" (TicTacToe.)
+   "chess"       (Chess.)
+   })
 
-  (def games-states (atom
-    {
-     "tictactoe" []
-     }))
-
-  (defn update-game-state
-    [game-id new-game-state]
-    (swap! games-states #(assoc % game-id new-game-state)))
-
-  (defroutes app-routes
-             (context "/games" []
-               (defroutes games-routes
+(defroutes app-routes
+           (context "/games" []
+             (defroutes games-routes
+                        (GET "/" []
+                          (json/write-str (games-list)))
+                        (context "/:game-id" [game-id]
                           (GET "/" []
-                            (json/write-str (games-list)))
-                          (context "/:game-id" [game-id]
-                            (GET "/" []
-                              (json/write-str (game-details (get games-instances game-id))))
-                            (GET "/initial-state" []
-                              (update-game-state game-id (initial-state (get games-instances game-id)))
-                              (json/write-str (get (deref games-states) game-id)))
+                            (json/write-str (game-details (get games-instances game-id))))
+                          (context "/:match-id" [match-id]
                             (POST "/apply-move" request
-                              (let [current-state (get (deref games-states) game-id)
+                              (let [game-instance (get games-instances game-id)
+                                    current-state (or (get-game-state game-id match-id) (initial-state game-instance))
                                     move (:body request)
-                                    apply-move-response (apply-move (get games-instances game-id) current-state move)]
+                                    apply-move-response (apply-move game-instance current-state move)]
                                 (when (= (get apply-move-response "status") "ok")
-                                  (update-game-state game-id (get apply-move-response "new-state")))
-                                (json/write-str apply-move-response))))
-                          (route/not-found "Not Found"))))
+                                  (update-game-state game-id match-id (get apply-move-response "new-state")))
+                                (json/write-str apply-move-response)))
+                            (GET "/" []
+                              (json/write-str (or (get-game-state game-id match-id) (initial-state (get games-instances game-id)))))))
+                        (route/not-found "Not Found"))))
 
-  (def app
-    (-> (handler/api app-routes)
-        (middleware/wrap-json-body)
-        middleware/wrap-json-response))
+(def app
+  (-> (handler/api app-routes)
+      (middleware/wrap-json-body)
+      middleware/wrap-json-response))

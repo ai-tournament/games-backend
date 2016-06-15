@@ -10,7 +10,8 @@
                  [ring/ring-json "0.4.0"]
                  [org.clojure/java.jdbc "0.2.3"]
                  [com.h2database/h2 "1.3.170"]
-                 [org.clojure/data.json "0.2.6"]]
+                 [org.clojure/data.json "0.2.6"]
+                 [com.novemberain/monger "3.0.2"]]
   :plugins [[lein-ring "0.9.7"]]
   :jvm-opts ["-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005"]
   :ring {:handler games-api.handler/app}
