@@ -32,11 +32,16 @@
                               (json/write-str (game-details (get-game-instance game-id))))
                             (context "/:match-id" [match-id]
                                 (GET "/" []
-                                  (json/write-str (or (get-game-state game-id match-id) (initial-state (get-game-instance game-id)))))
+                                  (let [game-instance (get-game-instance game-id)
+                                        saved-state (get-game-state game-id match-id)
+                                        current-state (or saved-state (initial-state game-instance))]
+                                  (json/write-str current-state)))
                                 (POST "/apply-move" request
                                   (let [move (:body request)
-                                        current-state (or (get-game-state game-id match-id) (initial-state (get-game-instance game-id)))
-                                        move-result (apply-move (get-game-instance game-id) current-state move)]
+                                        game-instance (get-game-instance game-id)
+                                        saved-state (get-game-state game-id match-id)
+                                        current-state (or saved-state (initial-state game-instance))
+                                        move-result (apply-move game-instance current-state move)]
                                     (when (:is-valid move-result)
                                       (update-game-state game-id match-id (:new-state move-result)))
                                     (json/write-str move-result)))))
