@@ -2,29 +2,22 @@
   (:use games-api.protocols.game-protocol))
 
 (defn get-position-value [game-state pos]
-  (let [[x y] pos]
-    ((game-state y) x)
-    )
-  )
+  (let [{:keys [x y]} pos]
+    ((game-state y) x)))
 
 (defn set-position-value [game-state pos marker]
-  (let [[x y] pos]
-    (assoc game-state y (assoc (game-state y) x marker))
-    )
-  )
+  (let [{:keys [x y]} pos]
+    (assoc game-state y (assoc (game-state y) x marker))))
 
 (defn- empty-position? [game-state pos]
-  (= (get-position-value game-state pos) "E")
-  )
+  (= (get-position-value game-state pos) "E"))
 
 (defn get-markers []
-  ["X" "O"]
-  )
+  ["X" "O"])
 
 (defn all-equals? [row marker]
   (let [[a b c] row]
-    (= marker a b c))
-  )
+    (= marker a b c)))
 
 (defn all-equals-columns? [game-state marker]
   (loop [board game-state]
@@ -44,7 +37,7 @@
 
 (defn all-equals-diag? [game-state marker]
   (defn get-diag [filter]
-    (for [x (range 0 3) y (range 0 3) :when (filter x y)] (get-position-value game-state [x y])))
+    (for [x (range 0 3) y (range 0 3) :when (filter x y)] (get-position-value game-state {:x x :y y})))
   (let [first-diag (get-diag #(= %1 %2))
         second-diag (get-diag #(= (+ %1 %2) 2))]
     (or (all-equals? first-diag marker) (all-equals? second-diag marker))))
@@ -52,44 +45,48 @@
 (defn all-equals-board? [game-state marker]
   (or (all-equals-diag? game-state marker)
       (all-equals-columns? game-state marker)
-      (all-equals-rows? game-state marker))
-  )
+      (all-equals-rows? game-state marker)))
 
 (defn index-of [elem coll]
-  (first (keep-indexed #(if (= elem %2) %1) coll))
-  )
+  (first (keep-indexed #(if (= elem %2) %1) coll)))
 
-(defn- winner [marker game-state]
-  (all-equals-board? game-state marker)
-  )
+(defn- is-winner? [marker game-state]
+  (all-equals-board? game-state marker))
+
+(defn- is-board-full?
+  [game-state]
+  (empty? (filter (fn[row](some #(= % "E") row)) game-state)))
 
 (defrecord TicTacToe []
   Game
-  (game-details [_] { "name" "Tic Tac Toe game!"
-                      "desc" "It's really cool :)"
-                      "moves" {
+  (game-details [_] {:name  "Tic Tac Toe game!"
+                     :desc  "It's really cool :)"
+                     :moves {}})
 
-                               }
-                    })
   (initial-state [_] (vec (take 3 (repeat (vec (take 3 (repeat "E")))))))
 
-  (apply-move [_ game-state move]
-    (let [pos (get move "marker-position")
-          player-id (dec (get move "player-id"))]
-      (if (or (not (empty-position? game-state pos))
-              (get (finished _ game-state) "finished"))
-        {"status" "error"
-         "new-state" game-state}
-        { "status"  "ok"
-          "new-state" (set-position-value game-state pos ((get-markers) player-id))
-        })))
+  (is-move-valid?
+    [_ game-state move]
+    (let [pos (:marker-position move)]
+      (or (not (empty-position? game-state pos))
+          (is-finished? _ game-state))))
 
-  (finished [_ game-state]
+  (apply-move [_ game-state move]
+    (let [player-id (:player-id move)
+          pos (:marker-position move)]
+      (if (is-move-valid? _ game-state move)
+        {:is-valid  false
+         :new-state game-state}
+        {:is-valid  true
+         :new-state (set-position-value game-state pos ((get-markers) player-id))})))
+
+  (get-winner [_ game-state]
     (let [winner-id (cond
-                      (winner "X" game-state) 1
-                      (winner "O" game-state) 2
+                      (is-winner? "X" game-state) 0
+                      (is-winner? "O" game-state) 1
                       :else nil)]
-      {"finished"  (not (= winner-id nil))
-       "winner-id" winner-id
-       }
-      )))
+      winner-id))
+
+  (is-finished?
+    [_ game-state]
+    (or (get-winner _ game-state) (is-board-full? game-state))))

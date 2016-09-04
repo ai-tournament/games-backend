@@ -3,5 +3,7 @@
 (defprotocol Game
   (game-details [this])
   (initial-state [this])
+  (is-move-valid? [this game-state move])
   (apply-move [this game-state move])
-  (finished [this game-state]))
+  (is-finished? [this game-state])
+  (get-winner [_ game-state]))

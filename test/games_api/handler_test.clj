@@ -8,7 +8,7 @@
 ; TODO replace the expected response with the ones from the database
 (deftest test-app
   (testing "games list route"
-    (def expected-response  [{:game-id "tic-tac-toe" :game-name "Tic-Tac-Toe"}
+    (def expected-response  [{:game-id "tictactoe" :game-name "Tic-Tac-Toe"}
                              {:game-id "chess" :game-name "Chess"}])
       (let [response (app (mock/request :get "/games"))]
         (is (= (:status response) 200))
