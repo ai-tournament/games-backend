@@ -28,19 +28,20 @@
                         (GET "/" []
                           (json/write-str (games-list)))
                         (context "/:game-id" [game-id]
-                          (GET "/" []
-                            (json/write-str (game-details (get-game-instance game-id))))
-                          (context "/:match-id" [match-id]
+                          (let [game-instance (get-game-instance game-id)]
                             (GET "/" []
-                              (json/write-str (or (get-game-state game-id match-id) (initial-state (get-game-instance game-id)))))
-                            (POST "/apply-move" request
-                              (let [game-instance (get-game-instance game-id)
-                                    current-state (or (get-game-state game-id match-id) (initial-state game-instance))
-                                    move (:body request)
-                                    move-result (apply-move game-instance current-state move)]
-                                (when (:is-valid move-result)
-                                  (update-game-state game-id match-id (:new-state move-result)))
-                                (json/write-str move-result)))))
+                              (json/write-str (game-details game-instance)))
+                            (context "/:match-id" [match-id]
+                              (let [game-state (get-game-state game-id match-id)
+                                    current-state (or game-state (initial-state game-instance))]
+                                (GET "/" []
+                                  (json/write-str current-state))
+                                (POST "/apply-move" request
+                                  (let [move (:body request)
+                                        move-result (apply-move game-instance current-state move)]
+                                    (when (:is-valid move-result)
+                                      (update-game-state game-id match-id (:new-state move-result)))
+                                    (json/write-str move-result)))))))
                         (route/not-found "Not Found"))))
 
 (def app
