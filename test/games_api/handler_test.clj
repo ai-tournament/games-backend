@@ -25,5 +25,21 @@
     (let [expected-response "Awesome chess game!"
           response (app (mock/request :get "/games/chess"))]
       (is (= (:status response) 200))
+      (is (= (:body response) (json/write-str expected-response)))))
+
+  (testing "get a new match state"
+    (let [expected-response [["E" "E" "E"] ["E" "E" "E"] ["E" "E" "E"]]
+          response (app (mock/request :get (str "/games/tictactoe/" (int (rand 1000000)))))]
+      (is (= (:body response) (json/write-str expected-response)))))
+
+  (testing "apply a move"
+    (let [expected-response {:is-valid true :new-state [["E" "E" "E"] ["E" "X" "E"] ["E" "E" "E"]]}
+          response (app (mock/content-type
+                          (mock/body
+                            (mock/request :post (str "/games/tictactoe/" (int (rand 1000000)) "/apply-move"))
+                            (json/write-str {:move-id         "place-marker"
+                             :player-id       0
+                             :marker-position {:x 1 :y 1}}))
+                          "application/json"))]
       (is (= (:body response) (json/write-str expected-response))))))
 
